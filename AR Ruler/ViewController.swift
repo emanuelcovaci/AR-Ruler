@@ -13,6 +13,7 @@ import ARKit
 class ViewController: UIViewController, ARSCNViewDelegate {
     
     var dotNodes = [SCNNode]()
+    var textNode = SCNNode()
 
     @IBOutlet var sceneView: ARSCNView!
     
@@ -49,7 +50,10 @@ class ViewController: UIViewController, ARSCNViewDelegate {
             let hitTestresult = sceneView.hitTest(touchLocation, types: .featurePoint)
             
             if let hitResult = hitTestresult.first{
-                addDot(at: hitResult)
+                if dotNodes.count <= 2{
+                     addDot(at: hitResult)
+                }
+               
             }
         }
     }
@@ -79,6 +83,16 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         
     }
     
+    @IBAction func deleteDots(_ sender: UIBarButtonItem) {
+        
+        for dot in dotNodes{
+            dot.removeFromParentNode()
+        }
+        
+        dotNodes = [SCNNode]()
+
+        textNode.removeFromParentNode()
+    }
     func calculateDistance(){
         let start = dotNodes[0]
         let end = dotNodes[1]
@@ -90,11 +104,12 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         let distance = sqrt(
         pow(end.position.x - start.position.x,2) +
         pow(end.position.y - start.position.y,2) +
-        pow(end.position.z - start.position.z,2))
+        pow(end.position.z - start.position.z,2)) * 100
         
         print(distance)
         
-        updateText(with: "\(distance)", atPosition: end.position)
+        
+        updateText(with: "\(distance) cm", atPosition: end.position)
         
     }
     
@@ -104,11 +119,11 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         
         textGeometry.firstMaterial?.diffuse.contents = UIColor.red
         
-        let textNode = SCNNode(geometry: textGeometry)
+        textNode = SCNNode(geometry: textGeometry)
         
         textNode.position = SCNVector3(position.x, position.y + 0.01, position.z)
         
-        textNode.scale = SCNVector3(0.01,0.01,0.01)
+        textNode.scale = SCNVector3(0.0025,0.01,0.013)
         
         sceneView.scene.rootNode.addChildNode(textNode)
         
